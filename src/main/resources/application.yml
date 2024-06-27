@@ -1,0 +1,131 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: sso
+          uri: lb://sso-server
+          predicates:
+            - Path=/sso/**
+
+        - id: article-liked
+          uri: lb://article-service-server
+          predicates:
+            - Path=/article/*/liked
+          filters:
+            - JwtFilter
+        - id: article-like-post
+          uri: lb://article-service-server
+          predicates:
+            - Path=/article/*/like
+          filters:
+            - JwtFilter
+
+        - id: article-get
+          uri: lb://article-service-server
+          predicates:
+            - Method=GET
+            - Path=/article/**
+        - id: user-get-info  # user 예외
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user
+            - Method=GET
+          filters:
+            - JwtFilter
+        - id: user-get  # user 예외
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user/**
+            - Method=GET
+
+        - id: userNameToIdx  # user 예외
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user/NameToIdx/**
+        - id: userIdToIdx
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user/IdToIdx/**
+        - id: idxToUserInfo
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user/IdxToUserInfo/**
+        - id: articleIdxToWriterIdx
+          uri: lb://article-service-server
+          predicates:
+            - Path=/article/articleIdxToWriterIdx/**
+
+
+        - id: user
+          uri: lb://user-service-server
+          predicates:
+            - Path=/user/**
+          filters:
+            - JwtFilter
+        - id: follow
+          uri: lb://follow-service-server
+          predicates:
+            - Path=/follow/**
+          filters:
+            - JwtFilter
+        - id: article
+          uri: lb://article-service-server
+          predicates:
+            - Method=POST,DELETE,PUT,PACTH,OPTIONS
+            - Path=/article/**
+          filters:
+            - JwtFilter
+        - id: status
+          uri: lb://status-service-server
+          predicates:
+            - Path=/status/**
+          filters:
+            - JwtFilter
+
+
+#
+#        - id: suggestArticle  # user 예외
+#          uri: lb://article-service-server
+#          predicates:
+#            - Method=Get
+#            - Path=/article
+#          filters:
+
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: '*'
+            allowCredentials: true
+            allowedHeaders: '*'
+            allowedMethods:
+              - PUT
+              - GET
+              - POST
+              - DELETE
+              - OPTIONS
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+#            - JwtFilter
+#          - id: test
+#            uri: http://localhost:8761
+#            predicates:
+#              - Path=/
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://admin:nonabili1234@localhost:8761/eureka
+server:
+  port: 8080
+  address: 0.0.0.0
+
+jwt:
+  haeder: Authorization
+  secret: 77+977+977+977+977+9JFEiR++/vXfvv73vv73erVvvv71zSO+/vXLVu++/ve+/ve+/vXPvv71o77+9Ku+/ve+/vXTvv70k77+9Z++/vXpETTQlezPvv714N++/vVki77+977+9JQ==
+  refresh-token-expires-time: 2592000000
+  access-token-expires-time: 3600000
